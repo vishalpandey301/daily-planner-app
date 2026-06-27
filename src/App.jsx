@@ -353,4 +353,289 @@ export default function App() {
             </div>
             <div style={{marginTop:16,background:COLORS.card,borderRadius:14,padding:14,display:"flex",gap:16,justifyContent:"center"}}>
               <Stat label="Total" value={schedTotal} color={COLORS.accentGlow}/>
-              <Stat label="Done ✅" value=
+              <Stat label="Done ✅" value={schedDone} color={COLORS.success}/>
+              <Stat label="Baki ⏳" value={schedTotal-schedDone} color={COLORS.warn}/>
+            </div>
+          </div>
+        )}
+
+        {/* TODO */}
+        {tab==="todo"&&(
+          <div>
+            <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+              <input value={newTodo.text} onChange={e=>setNewTodo({...newTodo,text:e.target.value})} placeholder="Kya karna hai..." style={{...inputStyle,flex:1,minWidth:150}}/>
+              <select value={newTodo.priority} onChange={e=>setNewTodo({...newTodo,priority:e.target.value})} style={{...inputStyle,width:110}}>
+                <option value="high">🔴 High</option><option value="medium">🟡 Medium</option><option value="low">🟢 Low</option>
+              </select>
+              <button onClick={()=>{
+                if(!newTodo.text.trim()) return;
+                setTodos(prev=>[...prev,{id:Date.now(),...newTodo,done:false}]);
+                setNewTodo({text:"",priority:"medium"});showToast("✅ Task save ho gaya!");
+              }} style={btnStyle}>+ Add</button>
+            </div>
+            {["high","medium","low"].map(p=>{
+              const items=todos.filter(t=>t.priority===p);if(!items.length) return null;
+              return(
+                <div key={p} style={{marginBottom:20}}>
+                  <div style={{fontSize:12,fontWeight:700,color:PRIORITY_COLOR[p],textTransform:"uppercase",letterSpacing:1,marginBottom:8,paddingLeft:4}}>{p==="high"?"🔴":p==="medium"?"🟡":"🟢"} {p} Priority</div>
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    {items.map(item=>(
+                      <div key={item.id} style={{background:COLORS.card,border:`1px solid ${item.done?PRIORITY_COLOR[p]+"50":COLORS.border}`,borderLeft:`3px solid ${PRIORITY_COLOR[p]}`,borderRadius:12,padding:"12px 14px",display:"flex",alignItems:"center",gap:12}}>
+                        <button onClick={()=>{setTodos(prev=>prev.map(t=>t.id===item.id?{...t,done:!t.done}:t));showToast(item.done?"↩️ Undone!":"✅ Done! Shabash!");}} style={{background:item.done?PRIORITY_COLOR[p]:"transparent",border:`2px solid ${item.done?PRIORITY_COLOR[p]:COLORS.border}`,borderRadius:8,width:28,height:28,cursor:"pointer",color:"#fff",fontSize:13,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>{item.done?"✓":""}</button>
+                        <span style={{flex:1,fontSize:14,fontWeight:500,textDecoration:item.done?"line-through":"none",color:item.done?COLORS.muted:COLORS.text}}>{item.text}</span>
+                        <button onClick={()=>{setTodos(prev=>prev.filter(t=>t.id!==item.id));showToast("🗑️ Delete ho gaya");}} style={{background:"transparent",border:"none",cursor:"pointer",color:COLORS.muted,fontSize:16}}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            <div style={{background:COLORS.card,borderRadius:14,padding:14,display:"flex",gap:16,justifyContent:"center",marginTop:8}}>
+              <Stat label="Total" value={todoTotal} color={COLORS.accentGlow}/>
+              <Stat label="Done ✅" value={todoDone} color={COLORS.success}/>
+              <Stat label="Baki" value={todoTotal-todoDone} color={COLORS.warn}/>
+            </div>
+          </div>
+        )}
+
+        {/* NOT-TODO */}
+        {tab==="nottodo"&&(
+          <div>
+            <div style={{background:`${COLORS.danger}15`,border:`1px solid ${COLORS.danger}30`,borderRadius:14,padding:"12px 16px",marginBottom:16,fontSize:13,color:COLORS.muted,lineHeight:1.6}}>
+              🧠 <strong style={{color:COLORS.text}}>Not-To-Do List</strong> — Agar aaj koi rule toda toh lal button dabao. Discipline yahaan se aata hai!
+            </div>
+
+            {/* Aaj ka Not-Todo score */}
+            <div style={{background:COLORS.card,borderRadius:14,padding:"12px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:16}}>
+              <div style={{textAlign:"center",flex:1}}>
+                <div style={{fontSize:28,fontWeight:900,color:ntBroken===0?COLORS.success:COLORS.danger}}>{ntFollowed}/{ntTotal}</div>
+                <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>Rules Follow Kiye</div>
+              </div>
+              <div style={{width:1,height:40,background:COLORS.border}}/>
+              <div style={{textAlign:"center",flex:1}}>
+                <div style={{fontSize:28,fontWeight:900,color:ntBroken===0?COLORS.success:COLORS.danger}}>{ntBroken}</div>
+                <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>Rules Tode ❌</div>
+              </div>
+              <div style={{width:1,height:40,background:COLORS.border}}/>
+              <div style={{textAlign:"center",flex:1}}>
+                <div style={{fontSize:28,fontWeight:900,color:ntBroken===0?COLORS.success:ntPct>=75?COLORS.accent:COLORS.danger}}>{ntPct}%</div>
+                <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>Discipline Score</div>
+              </div>
+            </div>
+
+            <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+              <input value={newNotTodo.text} onChange={e=>setNewNotTodo({...newNotTodo,text:e.target.value})} placeholder="Kya nahi karna hai..." style={{...inputStyle,flex:1,minWidth:150}}/>
+              <select value={newNotTodo.category} onChange={e=>setNewNotTodo({...newNotTodo,category:e.target.value})} style={{...inputStyle,width:110}}>
+                <option value="focus">🎯 Focus</option><option value="health">🍎 Health</option>
+                <option value="finance">💰 Finance</option><option value="social">🚫 Social</option>
+              </select>
+              <button onClick={()=>{
+                if(!newNotTodo.text.trim()) return;
+                setNotTodos(prev=>[...prev,{id:Date.now(),...newNotTodo,broken:false}]);
+                setNewNotTodo({text:"",category:"focus"});showToast("🚫 Rule save ho gaya!");
+              }} style={{...btnStyle,background:COLORS.danger}}>+ Add</button>
+            </div>
+
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {notTodos.map(item=>(
+                <div key={item.id} style={{background:item.broken?`${COLORS.danger}15`:COLORS.card,border:`1px solid ${item.broken?COLORS.danger+"50":COLORS.border}`,borderLeft:`3px solid ${item.broken?COLORS.danger:COLORS.success}`,borderRadius:12,padding:"12px 16px",display:"flex",alignItems:"center",gap:12}}>
+                  <span style={{fontSize:20}}>{CAT_ICON[item.category]||"🚫"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:600,color:item.broken?COLORS.danger:COLORS.text,textDecoration:item.broken?"line-through":"none"}}>{item.text}</div>
+                    <div style={{fontSize:11,color:COLORS.muted,marginTop:2,textTransform:"capitalize"}}>{item.category} · {item.broken?"❌ Aaj toda":"✅ Follow kar rahe ho"}</div>
+                  </div>
+                  {/* Broken toggle */}
+                  <button
+                    onClick={()=>{setNotTodos(prev=>prev.map(n=>n.id===item.id?{...n,broken:!n.broken}:n));showToast(item.broken?"↩️ Wapas follow pe!":"😬 Rule toda — kal better karo!");}}
+                    style={{background:item.broken?COLORS.danger:`${COLORS.success}22`,border:`2px solid ${item.broken?COLORS.danger:COLORS.success}`,borderRadius:8,padding:"5px 10px",cursor:"pointer",color:item.broken?"#fff":COLORS.success,fontSize:12,fontWeight:700,whiteSpace:"nowrap"}}>
+                    {item.broken?"❌ Toda":"✅ OK"}
+                  </button>
+                  <button onClick={()=>{setNotTodos(prev=>prev.filter(n=>n.id!==item.id));showToast("🗑️ Delete ho gaya");}} style={{background:"transparent",border:"none",cursor:"pointer",color:COLORS.muted,fontSize:16}}>✕</button>
+                </div>
+              ))}
+            </div>
+
+            {ntBroken===0&&ntTotal>0&&(
+              <div style={{marginTop:16,background:`${COLORS.success}15`,border:`1px solid ${COLORS.success}30`,borderRadius:12,padding:"12px 16px",textAlign:"center",fontSize:14,fontWeight:700,color:COLORS.success}}>
+                🎉 Aaj ke sabhi rules follow ho rahe hain! Zabardast discipline!
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PERFORMANCE */}
+        {tab==="performance"&&(
+          <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+            {/* Grade */}
+            <div style={{background:`linear-gradient(135deg,${grade.color}22,${COLORS.card})`,border:`1px solid ${grade.color}44`,borderRadius:18,padding:"20px 20px 16px",textAlign:"center"}}>
+              <div style={{fontSize:12,color:COLORS.muted,fontWeight:600,letterSpacing:1,textTransform:"uppercase",marginBottom:6}}>Aaj Ka Score</div>
+              <div style={{fontSize:72,fontWeight:900,color:grade.color,lineHeight:1}}>{grade.g}</div>
+              <div style={{fontSize:13,color:COLORS.muted,marginTop:6}}>{grade.msg}</div>
+              <div style={{marginTop:10,display:"inline-block",background:`${grade.color}22`,borderRadius:20,padding:"4px 14px",fontSize:13,fontWeight:700,color:grade.color}}>Overall: {overallPct}%</div>
+            </div>
+
+            {/* 4 Circles - Schedule, Todo, NotTodo, Overall */}
+            <div style={{background:COLORS.card,borderRadius:18,padding:20}}>
+              <div style={{fontSize:13,fontWeight:700,color:COLORS.muted,marginBottom:16,textTransform:"uppercase",letterSpacing:1}}>📈 Aaj Ki Progress</div>
+              <div style={{display:"flex",justifyContent:"space-around",flexWrap:"wrap",gap:12}}>
+                <CircleProgress pct={schedPct} color={COLORS.accent} label="Schedule" sublabel={`${schedDone}/${schedTotal}`}/>
+                <CircleProgress pct={todoPct} color={COLORS.success} label="To-Do" sublabel={`${todoDone}/${todoTotal}`}/>
+                <CircleProgress pct={ntPct} color={ntBroken===0?COLORS.success:COLORS.danger} label="Discipline" sublabel={`${ntBroken} tode`}/>
+                <CircleProgress pct={overallPct} color={grade.color} label="Overall" sublabel="Combined"/>
+              </div>
+            </div>
+
+            {/* Stats grid */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              {[
+                {icon:"📅",label:"Total Days Tracked",value:perfHistory.length,color:COLORS.accentGlow},
+                {icon:"📊",label:"Average Score",value:`${avgAll}%`,color:COLORS.accent},
+                {icon:"🏆",label:"Best Day",value:bestDay?`${bestDay.grade} (${bestDay.overall}%)`:"--",color:COLORS.success},
+                {icon:"📉",label:"Worst Day",value:worstDay?`${worstDay.grade} (${worstDay.overall}%)`:"--",color:COLORS.warn},
+                {icon:"🚫",label:"Rules Tode Aaj",value:ntBroken,color:ntBroken===0?COLORS.success:COLORS.danger},
+                {icon:"💪",label:"Discipline Score",value:`${ntPct}%`,color:ntPct>=80?COLORS.success:ntPct>=50?COLORS.warn:COLORS.danger},
+              ].map((s,i)=>(
+                <div key={i} style={{background:COLORS.card,borderRadius:14,padding:"14px 16px",border:`1px solid ${COLORS.border}`}}>
+                  <div style={{fontSize:22}}>{s.icon}</div>
+                  <div style={{fontSize:18,fontWeight:900,color:s.color,marginTop:4}}>{s.value}</div>
+                  <div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Progress bars */}
+            <div style={{background:COLORS.card,borderRadius:18,padding:18}}>
+              <div style={{fontSize:13,fontWeight:700,color:COLORS.muted,marginBottom:14,textTransform:"uppercase",letterSpacing:1}}>📊 Aaj Ka Breakdown</div>
+              <ProgressBar label="📆 Schedule" pct={schedPct} color={COLORS.accent}/>
+              <ProgressBar label="✅ To-Do" pct={todoPct} color={COLORS.success}/>
+              <ProgressBar label="🚫 Discipline (Nahi Karna)" pct={ntPct} color={ntBroken===0?COLORS.success:COLORS.danger}/>
+              <ProgressBar label="🔴 High Priority Tasks" pct={highTotal?Math.round((highDone/highTotal)*100):0} color={COLORS.danger}/>
+            </div>
+
+            {/* Last 30 days */}
+            {last30.length>0&&(
+              <div style={{background:COLORS.card,borderRadius:18,padding:18}}>
+                <div style={{fontSize:13,fontWeight:700,color:COLORS.muted,marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>📅 Last {last30.length} Days</div>
+                <div style={{fontSize:11,color:COLORS.muted,marginBottom:14}}>Jab tak khud delete na karo, history rehti hai ✅</div>
+                <div style={{display:"flex",alignItems:"flex-end",gap:3,height:80,overflowX:"auto"}}>
+                  {last30.map((h,i)=>{
+                    const isToday=h.date===todayStr(),d=new Date(h.date);
+                    return(
+                      <div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2,flex:1,minWidth:18}}>
+                        <div style={{width:"100%",maxWidth:28,height:`${Math.max(h.overall,4)}%`,background:isToday?COLORS.accent:gradeColor(h.grade)+"99",borderRadius:4}} title={`${h.date}: ${h.overall}%`}/>
+                        <div style={{fontSize:8,color:isToday?COLORS.accent:COLORS.muted,fontWeight:isToday?800:400,transform:"rotate(-45deg)",transformOrigin:"top left",whiteSpace:"nowrap",marginTop:6}}>{d.getDate()}/{d.getMonth()+1}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div style={{marginTop:20,display:"flex",gap:12,flexWrap:"wrap"}}>
+                  {[{c:COLORS.success,l:"A/A+"},{c:COLORS.accent,l:"B"},{c:COLORS.warn,l:"C"},{c:COLORS.danger,l:"D"}].map(x=>(
+                    <div key={x.l} style={{display:"flex",alignItems:"center",gap:5,fontSize:11,color:COLORS.muted}}><div style={{width:10,height:10,borderRadius:3,background:x.c}}/>{x.l}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Monthly */}
+            {monthlyArr.length>0&&(
+              <div style={{background:COLORS.card,borderRadius:18,padding:18}}>
+                <div style={{fontSize:13,fontWeight:700,color:COLORS.muted,marginBottom:14,textTransform:"uppercase",letterSpacing:1}}>📆 Monthly Summary</div>
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {monthlyArr.map(m=>(
+                    <div key={m.key} style={{display:"flex",alignItems:"center",gap:12}}>
+                      <div style={{minWidth:70,fontSize:13,fontWeight:600}}>{m.label}</div>
+                      <div style={{flex:1,height:8,background:COLORS.cardAlt,borderRadius:99,overflow:"hidden"}}>
+                        <div style={{height:"100%",width:`${m.avg}%`,background:gradeColor(gradeLetter(m.avg)),borderRadius:99,transition:"width 0.8s"}}/>
+                      </div>
+                      <div style={{minWidth:60,textAlign:"right"}}>
+                        <span style={{fontSize:13,fontWeight:700,color:COLORS.text}}>{m.avg}%</span>
+                        <span style={{fontSize:10,color:COLORS.muted,marginLeft:4}}>{m.days}d</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Day-wise history */}
+            {perfHistory.length>0&&(
+              <div style={{background:COLORS.card,borderRadius:18,padding:18}}>
+                <div style={{fontSize:13,fontWeight:700,color:COLORS.muted,marginBottom:14,textTransform:"uppercase",letterSpacing:1}}>🗓️ Day-wise History</div>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {[...perfHistory].reverse().slice(0,15).map(h=>{
+                    const gc=gradeColor(h.grade),isToday=h.date===todayStr(),d=new Date(h.date);
+                    return(
+                      <div key={h.date} style={{padding:"10px 12px",background:isToday?`${COLORS.accent}15`:COLORS.cardAlt,borderRadius:10,border:`1px solid ${isToday?COLORS.accent+"40":COLORS.border}`}}>
+                        <div style={{display:"flex",alignItems:"center",gap:12}}>
+                          <div style={{minWidth:36,height:36,borderRadius:10,background:`${gc}22`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:900,color:gc}}>{h.grade}</div>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:13,fontWeight:600,color:isToday?COLORS.accentGlow:COLORS.text}}>{isToday?"Aaj · ":""}{d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"})}</div>
+                            <div style={{fontSize:11,color:COLORS.muted,marginTop:1}}>Sched {h.schedPct}% · Todo {h.todoPct}% · Disc {h.ntPct??"-"}%</div>
+                          </div>
+                          <div style={{fontSize:18,fontWeight:900,color:gc}}>{h.overall}%</div>
+                          <button onClick={()=>{
+                            if(window.confirm(`${h.date} ka record delete karo?`)){
+                              const updated=perfHistory.filter(x=>x.date!==h.date);
+                              setPerfHistory(updated);saveArr(`perfHistory/${USER_ID}`,updated);showToast("🗑️ Record delete ho gaya");
+                            }
+                          }} style={{background:"transparent",border:"none",cursor:"pointer",color:COLORS.muted,fontSize:14,padding:"0 4px"}}>✕</button>
+                        </div>
+                        {/* Mini breakdown bars */}
+                        <div style={{display:"flex",gap:6,marginTop:8}}>
+                          {[{l:"S",v:h.schedPct,c:COLORS.accent},{l:"T",v:h.todoPct,c:COLORS.success},{l:"D",v:h.ntPct??100,c:COLORS.danger}].map(b=>(
+                            <div key={b.l} style={{flex:1}}>
+                              <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
+                                <span style={{fontSize:9,color:COLORS.muted}}>{b.l}</span>
+                                <span style={{fontSize:9,color:b.c,fontWeight:700}}>{b.v}%</span>
+                              </div>
+                              <div style={{height:4,background:COLORS.border,borderRadius:99,overflow:"hidden"}}>
+                                <div style={{height:"100%",width:`${b.v}%`,background:b.c,borderRadius:99}}/>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {perfHistory.length>15&&<div style={{textAlign:"center",fontSize:12,color:COLORS.muted}}>+{perfHistory.length-15} aur records hain</div>}
+                </div>
+              </div>
+            )}
+
+            {perfHistory.length===0&&(
+              <div style={{background:COLORS.card,borderRadius:14,padding:24,textAlign:"center"}}>
+                <div style={{fontSize:32,marginBottom:8}}>📊</div>
+                <div style={{fontSize:14,color:COLORS.muted}}>Tasks complete karo aur rules follow karo — history apne aap save hogi!</div>
+              </div>
+            )}
+
+            <div style={{background:`${COLORS.accent}18`,border:`1px solid ${COLORS.accent}33`,borderRadius:14,padding:16,textAlign:"center"}}>
+              <div style={{fontSize:20,marginBottom:6}}>{overallPct>=75?"🔥":overallPct>=50?"💪":"📚"}</div>
+              <div style={{fontSize:14,fontWeight:700,color:COLORS.text}}>
+                {overallPct>=75?"Aaj ka din strong hai! IIM ka sapna closer ho raha hai 🎯":overallPct>=50?"Push karo Vishal! CAT 2027 yaad hai?":"Ek ek task karo. Journey of 1000 miles starts with 1 step."}
+              </div>
+            </div>
+
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        *{box-sizing:border-box} input::placeholder{color:#64748b}
+        select option{background:#1E293B}
+        ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+      `}</style>
+    </div>
+  );
+}
+
+function Stat({label,value,color}){
+  return(<div style={{textAlign:"center",flex:1}}><div style={{fontSize:26,fontWeight:900,color}}>{value}</div><div style={{fontSize:11,color:COLORS.muted,marginTop:2}}>{label}</div></div>);
+}
+
+const inputStyle={background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:10,padding:"9px 12px",color:COLORS.text,fontSize:14,outline:"none"};
+const btnStyle={background:COLORS.accent,border:"none",borderRadius:10,padding:"9px 16px",color:"#fff",fontSize:14,fontWeight:700,cursor:"pointer"};
