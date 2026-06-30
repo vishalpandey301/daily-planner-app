@@ -72,9 +72,6 @@ function fromFS(doc) {
   return obj;
 }
 async function fbGet(path) {
-  try { const r=await fetch(`${BASE}/${path}`); if(!r.ok) return null; return fromFS(await r.json()); } catch { return null; }
-}
-async function fbGet(path) {
   try {
     const r = await fetch(`${BASE}/${path}`);
     console.log("Firebase fetch:", path, r.status);
