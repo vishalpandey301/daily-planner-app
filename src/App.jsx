@@ -74,12 +74,16 @@ function fromFS(doc) {
 async function fbGet(path) {
   try { const r=await fetch(`${BASE}/${path}`); if(!r.ok) return null; return fromFS(await r.json()); } catch { return null; }
 }
-async function fbSet(path, data) {
+async function fbGet(path) {
   try {
-    const fields=toFS(data).fields;
-    const mask=Object.keys(fields).map(f=>`updateMask.fieldPaths=${encodeURIComponent(f)}`).join("&");
-    await fetch(`${BASE}/${path}?${mask}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({fields})});
-  } catch {}
+    const r = await fetch(`${BASE}/${path}`);
+    console.log("Firebase fetch:", path, r.status);
+    if (!r.ok) return null;
+    return fromFS(await r.json());
+  } catch(e) { 
+    console.log("Firebase error:", e);
+    return null; 
+  }
 }
 async function saveArr(path, arr) { await fbSet(path,{data:JSON.stringify(arr),updatedAt:Date.now()}); }
 async function loadArr(path) {
