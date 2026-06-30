@@ -13,8 +13,8 @@ const COLORS = {
 };
 
 const DEFAULT_SCHEDULE = [
-  { id: 1, time: "06:00", task: "Morning Walk / Exercise", done: false, alert: true },
-  { id: 2, time: "07:00", task: "Breakfast + News Reading", done: false, alert: false },
+  { id: 1, time: "20:00", task: "Typing 30 mints", done: false, alert: true },
+  { id: 2, time: "20:30", task: "BBA study 1 hours", done: false, alert: false },
   { id: 3, time: "09:00", task: "BBA Study / Assignment", done: false, alert: true },
   { id: 4, time: "12:00", task: "Lunch Break", done: false, alert: false },
   { id: 5, time: "14:00", task: "CAT Prep (Maths/Reasoning)", done: false, alert: true },
